@@ -1,3 +1,14 @@
+# Source code
+"""
+Made by N.Arjun Karthikeya
+I have made some changes in the game designed here : https://youtu.be/8dfePlONtls
+The game can be paused (press space-bar) and resume feature , 
+background-music (playing only when the game is running),
+we can use WASD or arrow keys(controls) to navigate the snake , 
+and increase in speed of snake (by 0.005s) for every apple it eats.
+"""
+
+#========= importing modules ============
 import pygame
 from pygame.locals import *
 import time
@@ -7,30 +18,42 @@ SIZE = 40
 BACKGROUND_COLOR = (110, 110, 5)
 
 
+# ============ APPLE CLASS =============
 class Apple:
+    #Constructor of apple class
     def __init__(self, parent_screen):
         self.parent_screen = parent_screen
-        self.image = pygame.image.load("assets/apple1.jpeg").convert()
+        self.image = pygame.image.load("assets/apple1.jpeg").convert() 
+        #declaring initial co-ordinates of the apple when the game starts
         self.x = 120
         self.y = 120
 
+    """
+    puts the apple on the screen with co-ordinates and
+    reloading the screen everytime to avoid overlapping of snake body 
+    """
     def draw(self):
         self.parent_screen.blit(self.image, (self.x, self.y))
         pygame.display.flip()
-
+        
+    """
+    move the apple to a randome location inside the 
+    boundaries of the application using random function
+    """
     def move(self):
         self.x = random.randint(1, 24) * SIZE
         self.y = random.randint(1, 19) * SIZE
 
 
+# ============ SNAKE CLASS =============
 class Snake:
     def __init__(self, parent_screen):
-        self.parent_screen = parent_screen
+        self.parent_screen = parent_screen  #loading the screen from game class
         self.image = pygame.image.load("assets/block.jpeg").convert()
-        self.direction = 'down'
-
-        self.length = 1
-        self.x = [40]
+        self.direction = 'down'  #initializing the direction of the snake 
+        self.length = 1          #initializing the snake's length to 1 block
+        #initial co-ordinates of the snake
+        self.x = [40]              
         self.y = [40]
 
     def move_left(self):
@@ -64,12 +87,13 @@ class Snake:
         self.draw()
 
     def draw(self):
+        #printing each and every block of the snake 
         for i in range(self.length):
             self.parent_screen.blit(self.image, (self.x[i], self.y[i]))
-
         pygame.display.flip()
 
     def increase_length(self):
+        #increasing the length of the snake by one unit
         self.length += 1
         self.x.append(-1)
         self.y.append(-1)
@@ -78,47 +102,51 @@ class Snake:
 class Game:
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption("Codebasics Snake And Apple Game")
+        pygame.display.set_caption("Snake game")
 
-        pygame.mixer.init()
+        pygame.mixer.init()            #this command is used to start the background music to play while game starts 
         self.play_background_music()
-        self.pause_counter = 0
-        self.rest = 0.2
+        self.pause_counter = 0         #initializing pause_counter to know if the game is paused or resumed
+        self.rest = 0.2                #initializing the sleep time for the snake to move
 
-        self.surface = pygame.display.set_mode((1000, 800))
-        self.snake = Snake(self.surface)
+        self.surface = pygame.display.set_mode((1000, 800))     
+        self.snake = Snake(self.surface)                #initializing snake object
         self.snake.draw()
-        self.apple = Apple(self.surface)
+        self.apple = Apple(self.surface)                #initializing apple object
         self.apple.draw()
 
     def play_background_music(self):
-        pygame.mixer.music.load('assets/DJ Snake - Magenta Riddim.mp3')
-        pygame.mixer.music.play(-1, 0)
+        pygame.mixer.music.load('assets/DJ Snake - Magenta Riddim.mp3')     #loads the music from assets file
+        pygame.mixer.music.play(-1, 0)                                      #plays the music
 
     def play_sound(self, sound_name):
         if sound_name == "crash":
-            sound = pygame.mixer.Sound("assets/1_snake_game_resources_crash.mp3")
+            sound = pygame.mixer.Sound("assets/1_snake_game_resources_crash.mp3")   #plays when snake crashes
         elif sound_name == 'ding':
-            sound = pygame.mixer.Sound("assets/1_snake_game_resources_ding.mp3")
+            sound = pygame.mixer.Sound("assets/1_snake_game_resources_ding.mp3")    #plays when snake eats an apple
 
         pygame.mixer.Sound.play(sound)
 
     def reset(self):
+        #reset the snake after it crashes for a new game
         self.snake = Snake(self.surface)
         self.apple = Apple(self.surface)
 
+    #collision method
     def is_collision(self, x1, y1, x2, y2):
         if x1 >= x2 and x1 < x2 + SIZE:
             if y1 >= y2 and y1 < y2 + SIZE:
                 return True
         return False
-
+    
+    #tells if the snake crosses the layout of the screen
     def out_of_bounds(self, x, y):
         if x > 1000 or y > 800 or x < 0 or y < 0:
             return True
         return False
 
     def render_background(self):
+        #loads background image
         bg = pygame.image.load("assets/background.jpeg")
         self.surface.blit(bg, (0, 0))
 
